@@ -78,7 +78,7 @@ class CanvasEventsDemo:
             print(filename)
             I.save(str(filename)+"/test.jpg")
             
-        # Shapes
+        # Menu
         b1=Menu(r,title="    Oval    ",font="ubuntu 10",background="dimgrey",foreground="snow")
         b1.add_command(label="       Oval         ",command=lambda: ova()) 
         b1.add_command(label="     Rectangle    ", command=lambda: rect()) 
@@ -109,8 +109,6 @@ class CanvasEventsDemo:
         
     def onGrow(self, event):                         
         canvas = event.widget
-        #print(self.cl)
-        # deletes the previously made shape
         if self.drawn: 
             canvas.delete(self.drawn)
         if self.kinds==canvas.create_line:
@@ -122,10 +120,6 @@ class CanvasEventsDemo:
             else:
                 objectId = self.shape(self.start.x, self.start.y, event.x, event.y,outline=self.cl,width=(self.w.get()+1)/10)
             
-            
-#        if trace:
-#            print (objectId)
-        
         self.drawn = objectId
         
     def onClear(self, event):
@@ -148,18 +142,7 @@ class CanvasEventsDemo:
             x2, y2 = ( event.x +width  ), ( event.y + width  )
             canvas.create_rectangle( x1, y1, x2, y2, fill = self.cl,outline=self.cl )
         canvas.bind( "<B1-Motion>", paint )
-        
-"""    def fill(self,event):
-        canvas=event.widget
-        self.canvas.bind("<ButtonPress-1>", self.on_fill_color)
-    
-    def on_fill_color(self, event):
-        
-        self.filled = draw.fillColor(self.paper, (event.x, event.y), self.bgColor, self.chooseColor, self.paperWidth, self.paperHeight)
-        self.canvas.create_image(self.paperWidth / 2, self.paperHeight / 2, image=self.filled)
-        print("fill")
- """       
-        
+           
 r=tk.Tk()
 r.config(background="black")
 cb="snow"
