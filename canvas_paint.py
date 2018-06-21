@@ -26,7 +26,47 @@ class CanvasEventsDemo:
         x=IntVar()
         self.w=Scale(r,variable=x,orient="horizontal",background="dimgrey")
         self.w.grid(row=1,column=8)
-                
+        
+        def getName():
+            image_path = './test.jpg' # Input image
+
+            # Read in the image_data in binary ormat
+            image_data = tf.gfile.FastGFile(image_path, 'rb').read()
+
+            # Loading label file, strips off carriage return (removes the "\n" seperating each line)
+            label_lines = [line.rstrip() for line
+                           in tf.gfile.GFile("retrained_labels.txt")]
+
+            # Unpersists graph from file (loading the graph trained using the cup and car numpies)
+            with tf.gfile.FastGFile("retrained_graph.pb", 'rb') as f:
+                graph_def = tf.GraphDef()
+                graph_def.ParseFromString(f.read())
+                _ = tf.import_graph_def(graph_def, name='')
+
+            with tf.Session() as sess:
+                # Feed the image_data as input to the graph and get first prediction
+                softmax_tensor = sess.graph.get_tensor_by_name('final_result:0') #final_result is the output node
+
+                predictions = sess.run(softmax_tensor, {'DecodeJpeg/contents:0': image_data}) #DecodeJpeg/contents:0 is the input node
+                                                                                              #running the session;
+                                                                                              #storing the output data in the layer "setmax_tensor"
+
+                # Sort to show labels of first prediction in order of confidence
+                K=predictions[0]
+                top_k = K.argsort()[-len(K):][::-1]  # list of indexes corresponding to the label lines(predictions)
+                object_list = []
+                for node_id in top_k:
+                    human_string = label_lines[node_id]
+                    object_list.append(human_string)
+                    score = predictions[0][node_id] # percentage of accuracy
+                    print('%s (score = %.5f)' % (human_string, score))
+                name_person = object_list[0]
+
+            L = Label(master, text=str(object_list[0]))
+            L.grid()
+            return name_person
+
+
         def ova():
             self.c=0
             self.kinds=canvas.create_oval
@@ -77,6 +117,9 @@ class CanvasEventsDemo:
             filename=filedialog.askdirectory()
             print(filename)
             I.save(str(filename)+"/test.jpg")
+            
+            name_object = getName()
+            print(name_object)
             
         # Menu
         b1=Menu(r,title="    Oval    ",font="ubuntu 10",background="dimgrey",foreground="snow")
